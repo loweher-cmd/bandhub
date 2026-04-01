@@ -240,19 +240,34 @@ function parseDateKey(key) {
   return new Date(y, m - 1, d);
 }
 
-// ─── Link detection ───────────────────────────────
+// ─── Link & player helpers ────────────────────────
 function isDirectAudio(url) {
   return /\.(mp3|wav|ogg|m4a|aac|flac)(\?.*)?$/i.test(url);
 }
 
-function getLinkLabel(url) {
-  if (!url) return null;
-  if (url.includes('drive.google.com')) return '▶ GOOGLE DRIVE';
-  if (url.includes('mega.nz'))          return '▶ MEGA';
-  if (url.includes('youtube.com') || url.includes('youtu.be')) return '▶ YOUTUBE';
-  if (url.includes('soundcloud.com'))   return '▶ SOUNDCLOUD';
-  if (isDirectAudio(url))               return '▶ REPRODUCIR';
-  return '▶ ABRIR LINK';
+// Extract file ID from any Google Drive URL format
+function getDriveId(url) {
+  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+            url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+function isDriveUrl(url) {
+  return url.includes('drive.google.com');
+}
+
+// Returns an object describing what kind of player to render
+function getPlayerInfo(url) {
+  if (!url) return { type: 'none' };
+  if (isDriveUrl(url)) {
+    const id = getDriveId(url);
+    if (id) return { type: 'drive', id, previewUrl: `https://drive.google.com/file/d/${id}/preview`, downloadUrl: `https://drive.google.com/uc?export=download&id=${id}` };
+  }
+  if (isDirectAudio(url)) return { type: 'audio', url };
+  if (url.includes('mega.nz'))          return { type: 'external', label: '↗ ABRIR EN MEGA' };
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return { type: 'external', label: '↗ VER EN YOUTUBE' };
+  if (url.includes('soundcloud.com'))   return { type: 'external', label: '↗ VER EN SOUNDCLOUD' };
+  return { type: 'external', label: '↗ ABRIR LINK' };
 }
 
 // ─── Main render ──────────────────────────────────
@@ -395,22 +410,47 @@ function renderDetail() {
   `;
 
   for (const r of rehearsals) {
-    const label   = getLinkLabel(r.link);
-    const isAudio = r.link && isDirectAudio(r.link);
+    const p = getPlayerInfo(r.link);
+
+    // Build player HTML
+    let playerHTML = '';
+    if (p.type === 'drive') {
+      playerHTML = `
+        <div class="player-wrap">
+          <iframe class="drive-player"
+                  src="${esc(p.previewUrl)}"
+                  allow="autoplay"
+                  allowfullscreen
+                  loading="lazy"
+                  title="Reproductor de ensayo"></iframe>
+        </div>`;
+    } else if (p.type === 'audio') {
+      playerHTML = `
+        <div class="player-wrap">
+          <audio class="audio-player" controls preload="none" src="${esc(p.url)}"></audio>
+        </div>`;
+    }
+
+    // Build action buttons
+    let actionsHTML = '';
+    if (p.type === 'drive') {
+      actionsHTML = `
+        <a href="${esc(p.downloadUrl)}" class="link-btn" target="_blank" rel="noopener">↓ DESCARGAR</a>
+        <a href="${esc(r.link)}" class="link-btn" target="_blank" rel="noopener">↗ ABRIR EN DRIVE</a>`;
+    } else if (p.type === 'audio') {
+      actionsHTML = `<a href="${esc(r.link)}" class="link-btn" download>↓ DESCARGAR</a>`;
+    } else if (p.type === 'external') {
+      actionsHTML = `<a href="${esc(r.link)}" class="link-btn primary" target="_blank" rel="noopener">${p.label}</a>`;
+    } else {
+      actionsHTML = `<span class="link-btn no-link">Sin link</span>`;
+    }
 
     html += `
       <div class="rehearsal-card ${isLatest ? 'card-latest' : ''}">
         <div class="card-title">${esc(r.title || 'Sin título')}</div>
         ${r.notes ? `<div class="card-notes">${esc(r.notes)}</div>` : ''}
-        <div class="card-actions">
-          ${r.link
-            ? `<a href="${esc(r.link)}" class="link-btn primary" target="_blank" rel="noopener">${label}</a>`
-            : `<span class="link-btn no-link">Sin link</span>`
-          }
-        </div>
-        ${isAudio && r.link
-          ? `<div class="audio-wrap"><audio controls preload="none" src="${esc(r.link)}"></audio></div>`
-          : ''}
+        ${playerHTML}
+        <div class="card-actions">${actionsHTML}</div>
       </div>
     `;
   }
