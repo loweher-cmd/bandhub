@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BandHub — Sistema de Ensayos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div id="app" class="app">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-brand">
+        <div class="brand-mark">◈</div>
+        <div class="brand-text">
+          <h1 class="brand-name">BANDHUB</h1>
+          <span class="brand-sub" id="brandSub">Sistema de Ensayos</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="conn-indicator" id="connIndicator" title="Conectando...">
+          <span class="conn-dot"></span>
+          <span class="conn-label" id="connLabel">—</span>
+        </div>
+        <a href="#" id="addBtn" class="add-btn" target="_blank" rel="noopener">
+          <span class="add-icon">+</span>
+          AGREGAR ENSAYO
+        </a>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+
+      <!-- Left: Calendar -->
+      <div class="left-panel">
+        <div class="cal-nav">
+          <button class="nav-btn" id="prevMonth" aria-label="Mes anterior">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <polyline points="15,18 9,12 15,6"/>
+            </svg>
+          </button>
+          <h2 class="month-title" id="monthTitle">—</h2>
+          <button class="nav-btn" id="nextMonth" aria-label="Mes siguiente">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <polyline points="9,18 15,12 9,6"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="calendar" id="calendar"></div>
+
+        <div class="cal-footer">
+          <div class="legend">
+            <div class="legend-item">
+              <span class="legend-dot dot-latest"></span>
+              <span>último</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot dot-rehearsal"></span>
+              <span>ensayo</span>
+            </div>
+          </div>
+          <div class="total-count" id="totalCount"></div>
+        </div>
+      </div>
+
+      <!-- Right: Detail -->
+      <div class="right-panel">
+        <div class="detail-placeholder" id="detailPlaceholder">
+          <svg class="placeholder-icon" viewBox="0 0 64 64" width="48" height="48" fill="none">
+            <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="1"/>
+            <circle cx="32" cy="32" r="7" stroke="currentColor" stroke-width="1"/>
+            <line x1="32" y1="4" x2="32" y2="16" stroke="currentColor" stroke-width="1"/>
+            <line x1="32" y1="48" x2="32" y2="60" stroke="currentColor" stroke-width="1"/>
+            <line x1="4" y1="32" x2="16" y2="32" stroke="currentColor" stroke-width="1"/>
+            <line x1="48" y1="32" x2="60" y2="32" stroke="currentColor" stroke-width="1"/>
+          </svg>
+          <p>Seleccioná un día del calendario</p>
+        </div>
+        <div class="detail-view" id="detailView"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Loading screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-inner">
+      <div class="loading-mark">◈</div>
+      <div class="loading-bars">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <p class="loading-label">Cargando ensayos...</p>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
